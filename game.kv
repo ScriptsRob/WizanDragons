@@ -1,0 +1,289 @@
+#:import utils kivy.utils
+<MainScreen>
+    theme_bg_color: "Custom"
+    md_bg_color: 1, 1, 1, 0
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        padding: '30dp'
+        spacing: '20'
+
+        AnchorLayout:
+            anchor_x: 'right'
+            anchor_y: 'bottom'
+            size_hint_y: None
+            height: "48dp"
+            padding: '20dp'
+
+            MDIconButton:
+                theme_font_size: "Custom"
+                theme_icon_color: "Custom"
+                icon: 'cog'
+                style: 'standard'
+                font_size: '40dp'
+                icon_color: utils.get_color_from_hex('#380e04')
+        
+        Image:
+            source: 'assets/dragon_title.jpg'
+            size_hint_y: None
+            height: '250dp'
+            pos_hint: {"center_x": 0.5}
+            allow_stretch: True
+            keep_ratio: True
+
+        MDButton:
+            theme_bg_color: "Custom"
+            style: "elevated" 
+            theme_width: "Custom"
+            theme_height: "Custom"
+            md_bg_color: utils.get_color_from_hex('#380e04')
+
+            ripple_effect: True
+            theme_ripple_color: "Custom"
+            ripple_color: 1, 1, 1, 0.5
+
+            size_hint: (None,None)
+            size: ('200dp', '50dp')
+            pos_hint: {"center_x": 0.5} 
+            
+            on_press:
+                root.manager.current = "game"
+            MDButtonText:
+                theme_text_color: 'Custom'
+                text_color: utils.get_color_from_hex('#bf2f0b')
+                size_hint_x: (0.8) 
+                text: "PLAY"
+                font_style: 'Label'
+                role: "large"
+                bold: True
+
+
+        MDButton:
+            theme_bg_color: "Custom"
+            style: "elevated" 
+            theme_width: "Custom"
+            theme_height: "Custom"
+            md_bg_color: utils.get_color_from_hex('#380e04')
+            
+            ripple_effect: True
+            theme_ripple_color: "Custom"
+            ripple_color: 1, 1, 1, 0.5
+
+            size_hint: (None,None)
+            size: ('220dp', '60dp')
+            pos_hint: {"center_x": 0.5} 
+            
+            MDButtonText:
+                theme_text_color: 'Custom'
+                text_color: utils.get_color_from_hex('#bf2f0b')
+                size_hint_x: (0.8) 
+                text: "Credits"
+                font_style: 'Label'
+                role: "large"
+                bold: True
+
+<Enemy@Image>:
+    source: 'assets/enemy.png'
+    size_hint: None,None
+    size:dp(60),dp(80)
+<Shot@Image>:
+    source: 'assets/fireball.png'
+    size_hint: None,None
+    size:dp(20),dp(20)
+
+<Dragon@Image>:
+    id: dragon
+    source: 'assets/image.png'
+    size_hint: None,None
+    size: dp(250) , dp(300)
+
+<Pause>:
+    size_hint: 1, 1      
+    canvas.before:
+    Color:
+        rgba: 0, 0, 0, 0.7
+    Rectangle:
+        pos: self.pos
+        size: self.size
+<GameScreen>
+    FitImage:
+        source: "assets/bg.jpg"
+        size_hint: 1, 1
+        pos_hint: {"center_x": .5, "center_y": .5}
+    MDFloatLayout:
+        MDFloatLayout:
+            id:game
+            MDFloatLayout:
+                id:back
+            MDFloatLayout:
+                id:front
+                Dragon:
+                    id: dragon
+                    center_x: root.center_x
+                    y: dp(20)
+
+                MDButton:
+                    pos_hint: {"center_x": .9,"center_y": .9}
+                    icon: 'Pause'
+                    theme_bg_color: "Custom"
+                    style: "elevated" 
+                    theme_width: "Custom"
+                    theme_height: "Custom"
+                    md_bg_color: utils.get_color_from_hex('#260901')
+                    on_press: root.pause()
+                    MDButtonIcon:
+                        icon: 'Pause'
+                        theme_icon_color: 'Custom'
+                        icon_color: utils.get_color_from_hex('#bf2f0b')
+                    MDButtonText:
+                        theme_text_color: 'Custom'
+                        pos_hint: {"center_x": .5,"center_y": .5}
+                        text_color: utils.get_color_from_hex('#bf2f0b')
+                        size_hint_x: 1
+                        text: "Pause"
+                        font_style: 'Label'
+                        role: "large"
+                        bold: True
+                            
+                MDButton:
+                    pos_hint: {"center_x": .1,"center_y": .1}
+                    theme_bg_color: "Custom"
+                    style: "elevated" 
+                    size_hint_x: 1
+                    md_bg_color: utils.get_color_from_hex('#260901')
+                    
+                    on_press: root.exit_to_menu()
+                    MDButtonIcon:
+                        icon: 'Exit'
+                        theme_icon_color: 'Custom'
+                        icon_color: utils.get_color_from_hex('#bf2f0b')
+                
+
+    MDFloatLayout:
+        id:interface
+        MDBoxLayout:
+            orientation: 'horizontal'
+            theme_bg_color: "Custom"
+            adaptive_size: True
+            md_bg_color: utils.get_color_from_hex('#3e0d00')
+            size_hint: None, None
+            size: "550dp", "80dp"
+            radius: [24,]
+            pos_hint: {"center_x": .5, "y": .02}
+            spacing: '15dp'
+            padding: '15dp'
+
+            MDButton:
+
+                theme_bg_color: "Custom"
+                style: "elevated" 
+                size_hint_x: 1
+                md_bg_color: utils.get_color_from_hex('#260901')
+                on_press: root.pressKey('left')
+                on_release: root.releaseKey('left')
+                MDButtonIcon:
+
+                    icon: 'arrow-left-bold'
+                    theme_icon_color: 'Custom'
+                    icon_color: utils.get_color_from_hex('#bf2f0b')
+
+                MDButtonText:
+                    theme_text_color: 'Custom'
+                    pos_hint: {"center_x": .5,"center_y": .5}
+                    text_color: utils.get_color_from_hex('#bf2f0b')
+                    size_hint_x: (0.8) 
+                    text: "Left"
+                    font_style: 'Label'
+                    role: "large"
+                    bold: True
+
+            MDButton:
+                theme_bg_color: "Custom"
+                style: "elevated" 
+                size_hint_x: 1
+                md_bg_color: utils.get_color_from_hex('#260901')
+                on_press: root.pressKey('shot')
+                on_release: root.releaseKey('shot')
+
+                MDButtonIcon:
+                    icon: 'arrow-up-bold'
+                    theme_icon_color: 'Custom'
+                    icon_color: utils.get_color_from_hex('#bf2f0b')
+
+                MDButtonText:
+                    theme_text_color: 'Custom'
+                    pos_hint: {"center_x": .5,"center_y": .5}
+                    text_color: utils.get_color_from_hex('#bf2f0b')
+                    size_hint_x: (0.8) 
+                    text: "Shoot"
+                    font_style: 'Label'
+                    role: "large"
+                    bold: True
+
+            MDButton:
+                theme_bg_color: "Custom"
+                style: "elevated" 
+                size_hint_x: 1
+                md_bg_color: utils.get_color_from_hex('#260901')
+                
+                on_press: root.pressKey('right')
+                on_release: root.releaseKey('right')
+
+                MDButtonIcon:
+                    icon: 'arrow-right-bold'
+                    theme_icon_color: 'Custom'
+                    icon_color: utils.get_color_from_hex('#bf2f0b')
+
+                MDButtonText:
+                    theme_text_color: 'Custom'
+                    pos_hint: {"center_x": .5,"center_y": .5}
+                    text_color: utils.get_color_from_hex('#bf2f0b')
+                    size_hint_x: (0.8) 
+                    text: "Right"
+                    font_style: 'Label'
+                    role: "large"
+                    bold: True
+                
+        MDBoxLayout:
+            id: pause_menu
+
+            orientation: 'vertical'
+            size_hint: None,None
+            size: "400dp", "500dp"
+
+            pos_hint: {"center_x": .5, "center_y": .5}
+            radius: [25,]
+            
+            theme_bg_color: "Custom"
+            opacity: 0.85
+            md_bg_color: utils.get_color_from_hex('#5b1601')
+
+
+            MDButton:
+                theme_bg_color: "Custom"
+                style: "elevated" 
+                theme_width: "Custom"
+                theme_height: "Custom"
+                md_bg_color: utils.get_color_from_hex('#380e04')
+                        
+                ripple_effect: True
+                theme_ripple_color: "Custom"
+                ripple_color: 1, 1, 1, 0.5
+
+                size_hint: (None,None)
+                size: ('220dp', '60dp')
+                pos_hint: {"center_x": 0.5} 
+                    
+                MDButtonText:
+                    theme_text_color: 'Custom'
+                    text_color: utils.get_color_from_hex('#bf2f0b')
+                    size_hint_x: (0.8) 
+                    text: "Exit to menu"
+                    font_style: 'Label'
+                    role: "large"
+                    bold: True
+                MDButtonIcon:
+                    theme_text_color: 'Custom'
+                    size_hint_x: (0.5) 
+                    icon: 'exit-to-app'
+                    text_color: utils.get_color_from_hex('#bf2f0b')
