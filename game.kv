@@ -85,7 +85,7 @@
 <Enemy@Image>:
     source: 'assets/enemy.png'
     size_hint: None,None
-    size:dp(60),dp(80)
+    size:dp(150),dp(150)
 <Shot@Image>:
     source: 'assets/fireball.png'
     size_hint: None,None
@@ -247,6 +247,8 @@
         MDBoxLayout:
             id: pause_menu
 
+            spacing: "20dp"
+            padding: "20dp"
             orientation: 'vertical'
             size_hint: None,None
             size: "400dp", "500dp"
@@ -258,7 +260,19 @@
             opacity: 0.85
             md_bg_color: utils.get_color_from_hex('#5b1601')
 
+            MDLabel:
+                style: "elevated" 
+                theme_width: "Custom"
+                theme_height: "Custom"
 
+                text: 'Paused'
+                text_color: utils.get_color_from_hex('#070200')
+                font_style: 'Label'
+                role: "large"
+                bold: True
+
+                font_size: '25sp'
+                pos_hint: {"center_x": 0.5} 
             MDButton:
                 theme_bg_color: "Custom"
                 style: "elevated" 
@@ -277,6 +291,35 @@
                 MDButtonText:
                     theme_text_color: 'Custom'
                     text_color: utils.get_color_from_hex('#bf2f0b')
+                    size_hint_x: (0.8) 
+                    text: "Resume"
+                    font_style: 'Label'
+                    role: "large"
+                    bold: True
+                MDButtonIcon:
+                    theme_text_color: 'Custom'
+                    size_hint_x: (0.5) 
+                    icon: 'exit-to-app'
+                    text_color: utils.get_color_from_hex('#bf2f0b')
+            MDButton:
+                theme_bg_color: "Custom"
+                style: "filled" 
+                theme_width: "Custom"
+                theme_height: "Custom"
+                opacity: 0.7
+                md_bg_color: utils.get_color_from_hex('#410e01')
+                        
+                ripple_effect: True
+                theme_ripple_color: "Custom"
+                ripple_color: 1, 1, 1, 0.5
+
+                size_hint: (None,None)
+                size: ('220dp', '60dp')
+                pos_hint: {"center_x": 0.5,"center_y": 0.5} 
+                    
+                MDButtonText:
+                    theme_text_color: 'Custom'
+                    text_color: utils.get_color_from_hex('#000000')
                     size_hint_x: (0.8) 
                     text: "Exit to menu"
                     font_style: 'Label'
