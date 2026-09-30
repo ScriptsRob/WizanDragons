@@ -72,10 +72,12 @@ class GameScreen(MDScreen):
                         self.enemies.remove(enemy)
                     continue
                 for ball in self.fireBalls[:]:
-                    y_hit = enemy.y <= ball.y <= (enemy.y + dp(80))
-                    x_hit = enemy.x <= ball.x <= (enemy.x + dp(60))
+                    x_hit = abs(enemy.center_x - ball.center_x)
+                    y_hit = abs(enemy.center_y - ball.center_y)
+                    max_allowed_distance_x = dp(40) 
+                    max_allowed_distance_y = dp(40)
 
-                    if x_hit and y_hit:
+                    if x_hit <= max_allowed_distance_x and y_hit <= max_allowed_distance_y:
                         self.ids.back.remove_widget(enemy)
                         if enemy in self.enemies:
                             self.enemies.remove(enemy)
@@ -84,10 +86,10 @@ class GameScreen(MDScreen):
                             self.fireBalls.remove(ball)    
                         break 
 
-        if self.ids.dragon.x >= Window.width - self.ids.dragon.width:
-            self.ids.dragon.x = Window.width - self.ids.dragon.width
-        elif self.ids.dragon.x <= 0:
-            self.ids.dragon.x = 0
+        if self.ids.dragon.x >= Window.width - self.ids.dragon.width +20:
+            self.ids.dragon.x = Window.width - self.ids.dragon.width +20
+        elif self.ids.dragon.x <= -20:
+            self.ids.dragon.x = -20
 
 
     def pause(self):
@@ -127,7 +129,7 @@ class Enemy(Image):
         super().__init__(**kwargs)
         self.size_hint = None,None
         self.size = (dp(150), dp(150))
-        self.pos = (randint(0,int(Window.width- dp(60))), Window.height)
+        self.pos = (randint(0,int(Window.width- dp(100))), Window.height)
 
 
 class Shot(Image):
@@ -136,8 +138,6 @@ class Shot(Image):
 class Pause(MDScreen):
     def __init__(self,**kwargs):
             super().__init__(**kwargs)
-            
-        #Зробити екран паузи...
 
 class GameApp(MDApp):
     def build(self):
