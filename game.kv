@@ -49,12 +49,14 @@
             on_press:
                 root.manager.current = "game"
             MDButtonText:
+                theme_font_name: "Custom"
+                font_name: 'assets/font.otf'
                 theme_text_color: 'Custom'
                 text_color: utils.get_color_from_hex('#bf2f0b')
                 size_hint_x: (0.8) 
                 text: "PLAY"
-                font_style: 'Label'
-                role: "large"
+                font_style: 'Headline'
+                role: "small"
                 bold: True
 
 
@@ -74,14 +76,19 @@
             pos_hint: {"center_x": 0.5} 
             
             MDButtonText:
+                theme_font_name: "Custom"
+                font_name: 'assets/font.otf'
                 theme_text_color: 'Custom'
                 text_color: utils.get_color_from_hex('#bf2f0b')
                 size_hint_x: (0.8) 
                 text: "Credits"
-                font_style: 'Label'
-                role: "large"
+                font_style: 'Headline'
+                role: "small"
                 bold: True
-
+<EnemySpell@Image>:
+    source: 'assets/spell_lvl1.png'
+    size_hint: None,None
+    size:dp(20),dp(20)
 <Enemy@Image>:
     source: 'assets/enemy.png'
     size_hint: None,None
@@ -93,9 +100,9 @@
 
 <Dragon@Image>:
     id: dragon
-    source: 'assets/image.png'
     size_hint: None,None
-    size: dp(250) , dp(300)
+    size: dp(150) , dp(200)
+    allow_stretch: True
 
 <Pause>:
     size_hint: 1, 1      
@@ -106,13 +113,57 @@
         pos: self.pos
         size: self.size
 <GameScreen>
-    FitImage:
-        source: "assets/bg.jpg"
-        size_hint: 1, 1
-        pos_hint: {"center_x": .5, "center_y": .5}
+    
     MDFloatLayout:
         MDFloatLayout:
             id:game
+        # === Background animation
+            FitImage:
+                id: bg1
+                source: "assets/bg.jpg"
+                size_hint: None,None
+                size: root.width, root.height
+                pos: 0, 0
+                allow_stretch: True
+                keep_ratio: False
+
+            FitImage:
+                id: bg2
+                source: "assets/bg.jpg"
+                size_hint: None,None
+                size: root.width, root.height
+                pos: 0, self.parent.height
+                allow_stretch: True
+                keep_ratio: False
+
+            
+            MDLabel:
+                id: game_over_label
+
+                theme_font_name: "Custom"
+                theme_font_size: "Custom"
+                theme_text_color: "Custom"
+
+                text: 'Game Over'
+                bold: True
+                font_size: "100sp"
+                
+                font_name: 'assets/font.otf'
+                opacity: 0
+                outline_width: 10
+                outline_colour: (0, 0, 0, 1)
+
+                size_hint_x: 1
+                size_hint_y: None
+                height: self.texture_size[1] 
+                
+                pos_hint: {"center_x": .5, "center_y": .5}
+                halign: "center"
+                valign: "middle"
+
+                text_color: utils.get_color_from_hex('#bf2f0b')
+
+
             MDFloatLayout:
                 id:back
             MDFloatLayout:
@@ -120,7 +171,7 @@
                 Dragon:
                     id: dragon
                     center_x: root.center_x
-                    y: dp(20)
+                    y: dp(30)
 
                 MDButton:
                     pos_hint: {"center_x": .9,"center_y": .9}
@@ -137,31 +188,60 @@
                         icon_color: utils.get_color_from_hex('#bf2f0b')
                     MDButtonText:
                         theme_text_color: 'Custom'
+                        theme_font_name: "Custom"
                         pos_hint: {"center_x": .5,"center_y": .5}
                         text_color: utils.get_color_from_hex('#bf2f0b')
                         size_hint_x: 1
                         text: "Pause"
-                        font_style: 'Label'
-                        role: "large"
-                        bold: True
-                            
-                MDButton:
-                    pos_hint: {"center_x": .1,"center_y": .9}
-                    theme_bg_color: "Custom"
-                    style: "elevated" 
-                    size_hint_x: 1
-                    md_bg_color: utils.get_color_from_hex('#260901')
-                    
-                    on_press: root.exit_to_menu()
-                    MDButtonIcon:
-                        icon: 'exit-to-app'
-                        pos_hint: {"center_x": .5,"center_y": .5}
-                        theme_icon_color: 'Custom'
-                        icon_color: utils.get_color_from_hex('#bf2f0b')
-                
+                        outline_width: 2
+                        outline_colour: (0, 0, 0, 1)
+                        font_name: 'assets/font.otf'
 
+                        font_style: 'Headline'
+                        role: "small"
+                        bold: True
+                ProgressBar:
+                    id: health_bar
+                    max: 100
+                    value: 100 
+                    size_hint: (None, None)
+                    width: "30dp"   
+                    height: "200dp" 
+                    pos_hint: {"x": .02, "center_y": .5}
+
+                    canvas:
+                        Color:
+                            rgba: utils.get_color_from_hex('#3e0d00')
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                            
+                        Color:
+                            rgba: utils.get_color_from_hex('#bf2f0b')
+                        Rectangle:
+                            
+                            pos: self.pos
+                            size: self.width, (self.value / float(self.max) if self.max > 0 else 0) * self.height
+
+
+
+                MDLabel:
+                    id: hp_label
+                    theme_text_color: "Custom"
+                    theme_font_name: "Custom"
+                    size_hint: None,None
+                    pos_hint: {"x": .02, "center_y": .5}
+                    
+                    text: '100'
+                    bold: True
+                    font_name: 'assets/font.otf'
+
+                    font_style: 'Headline'
+                    role: "small"
+                    text_color: utils.get_color_from_hex('#000000')
     MDFloatLayout:
         id:interface
+
         MDBoxLayout:
             orientation: 'horizontal'
             theme_bg_color: "Custom"
@@ -173,6 +253,7 @@
             pos_hint: {"center_x": .5, "y": .02}
             spacing: '15dp'
             padding: '15dp'
+            opacity: 0.75
 
             MDButton:
 
@@ -192,6 +273,8 @@
                     theme_text_color: 'Custom'
                     pos_hint: {"center_x": .5,"center_y": .5}
                     text_color: utils.get_color_from_hex('#bf2f0b')
+                    outline_width: 2
+                    outline_colour: (0, 0, 0, 1)
                     size_hint_x: (0.8) 
                     text: "Left"
                     font_style: 'Label'
@@ -207,14 +290,16 @@
                 on_release: root.releaseKey('shot')
 
                 MDButtonIcon:
-                    icon: 'arrow-up-bold'
+                    icon: 'fire'
                     theme_icon_color: 'Custom'
                     icon_color: utils.get_color_from_hex('#bf2f0b')
-
+                    
                 MDButtonText:
                     theme_text_color: 'Custom'
                     pos_hint: {"center_x": .5,"center_y": .5}
                     text_color: utils.get_color_from_hex('#bf2f0b')
+                    outline_width: 2
+                    outline_colour: (0, 0, 0, 1)
                     size_hint_x: (0.8) 
                     text: "Shoot"
                     font_style: 'Label'
@@ -234,11 +319,13 @@
                     icon: 'arrow-right-bold'
                     theme_icon_color: 'Custom'
                     icon_color: utils.get_color_from_hex('#bf2f0b')
-
+                    pos_hint: {"center_x": .75,"center_y": .5}
                 MDButtonText:
                     theme_text_color: 'Custom'
                     pos_hint: {"center_x": .5,"center_y": .5}
                     text_color: utils.get_color_from_hex('#bf2f0b')
+                    outline_width: 2
+                    outline_colour: (0, 0, 0, 1)
                     size_hint_x: (0.8) 
                     text: "Right"
                     font_style: 'Label'
@@ -248,13 +335,15 @@
         MDBoxLayout:
             id: pause_menu
 
+            disabled:True
             spacing: "20dp"
             padding: "20dp"
             orientation: 'vertical'
             size_hint: None,None
-            size: "400dp", "500dp"
+            size: "400dp", "400dp"
 
-            pos_hint: {"center_x": .5, "center_y": .5}
+
+            pos_hint: {"center_x": .5, "center_y": .6}
             radius: [25,]
             
             theme_bg_color: "Custom"
@@ -262,25 +351,28 @@
             md_bg_color: utils.get_color_from_hex('#5b1601')
 
             MDLabel:
-                style: "elevated" 
-                theme_width: "Custom"
-                theme_height: "Custom"
-
+                theme_font_name: "Custom"
+                font_name: 'assets/font.otf'
                 text: 'Paused'
                 text_color: utils.get_color_from_hex('#070200')
-                font_style: 'Label'
-                role: "large"
+                font_style: 'Display'
+                role: "medium"
                 bold: True
 
-                font_size: '25sp'
-                pos_hint: {"center_x": 0.5} 
+                halign: "center"
+                valign: "center"
+
+                adaptive_size: True  
+                pos_hint: {"center_x": 0.5, "top": 0.95}
             MDButton:
                 theme_bg_color: "Custom"
                 style: "elevated" 
                 theme_width: "Custom"
                 theme_height: "Custom"
                 md_bg_color: utils.get_color_from_hex('#380e04')
-                        
+
+                on_release: root.resume()
+
                 ripple_effect: True
                 theme_ripple_color: "Custom"
                 ripple_color: 1, 1, 1, 0.5
@@ -290,8 +382,12 @@
                 pos_hint: {"center_x": 0.5} 
                     
                 MDButtonText:
+                    theme_font_name: "Custom"
+                    font_name: 'assets/font.otf'
                     theme_text_color: 'Custom'
                     text_color: utils.get_color_from_hex('#bf2f0b')
+                    outline_width: 2
+                    outline_colour: (0, 0, 0, 1)
                     size_hint_x: (0.8) 
                     text: "Resume"
                     font_style: 'Label'
@@ -300,16 +396,19 @@
                 MDButtonIcon:
                     theme_text_color: 'Custom'
                     size_hint_x: (0.5) 
-                    icon: 'exit-to-app'
+                    icon: 'step-backward'
                     text_color: utils.get_color_from_hex('#bf2f0b')
             MDButton:
+                
                 theme_bg_color: "Custom"
                 style: "filled" 
                 theme_width: "Custom"
                 theme_height: "Custom"
                 opacity: 0.7
                 md_bg_color: utils.get_color_from_hex('#410e01')
-                        
+
+                on_release: root.go_menu()
+                
                 ripple_effect: True
                 theme_ripple_color: "Custom"
                 ripple_color: 1, 1, 1, 0.5
@@ -319,6 +418,8 @@
                 pos_hint: {"center_x": 0.5,"center_y": 0.5} 
                     
                 MDButtonText:
+                    theme_font_name: "Custom"
+                    font_name: 'assets/font.otf'
                     theme_text_color: 'Custom'
                     text_color: utils.get_color_from_hex('#000000')
                     size_hint_x: (0.8) 
@@ -330,4 +431,4 @@
                     theme_text_color: 'Custom'
                     size_hint_x: (0.5) 
                     icon: 'exit-to-app'
-                    text_color: utils.get_color_from_hex('#bf2f0b')
+                    text_color: utils.get_color_from_hex('#000000')
