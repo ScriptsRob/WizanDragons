@@ -1,4 +1,4 @@
-
+#Імпорти
 from kivymd.app import MDApp
 from kivymd.uix.widget import MDWidget
 from kivymd.uix.screenmanager import MDScreenManager
@@ -22,6 +22,7 @@ if platform != 'android':
     Window.top =100
     Window.left=400
 
+#Змінні
 SPELL_SPEED = dp(6)
 DRAGON_SPEED = dp(7)
 FIREBALL_SPEED = dp(10)
@@ -29,12 +30,15 @@ ENEMY_SPEED = dp(1)
 FPS = 60
 BG_SPEED = dp(1)
 
-# === Main Screen Class ===
+# === Клас Екрану Меню ===
 class MainScreen(MDScreen):
     def go_game(self):
         self.manager.current = 'game'
 
+# === Клас Екрану Гри ===
 class GameScreen(MDScreen):
+
+    #Коннструктор класу
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self.eventKeys = {}
@@ -58,13 +62,14 @@ class GameScreen(MDScreen):
         
 
         self.sound.volume = 0.15
-
+    # Оновлення гри при вході
     def on_enter(self):
         if self.sound:
             self.sound.loop = True
             self.sound.play()
         self.reset_game()
-        
+
+    #Метод ресету гри    
     def reset_game(self):
             for item in self.enemies + self.fireBalls + self.enemies_spells:
                 if item.parent:
@@ -88,16 +93,18 @@ class GameScreen(MDScreen):
             if 'pause_menu' in self.ids:
                 self.ids.pause_menu.opacity = 0
                 self.ids.pause_menu.disabled = True
-
+    # Метод атаки ворогів
     def enemy_shot(self,enemy):
         enemy_spell = EnemySpell(pos= (enemy.center_x- 25,enemy.center_y + 10))
         self.enemies_spells.append(enemy_spell)
         self.ids.front.add_widget(enemy_spell)
 
+    # Метод руху ворогів
     def move_enemy(self,dt):
         enemy = self.ids.enemy
         enemy.x = (randint(0,int(Window.width- dp(30))))
 
+    # Метод появи ворогів
     def spawn_enemy(self,dt):
         if self.manager.current != 'game' or self.game_over == True or self.is_paused == True:
             return
@@ -107,12 +114,14 @@ class GameScreen(MDScreen):
         self.ids.back.add_widget(new_enemy) 
 
     sound = SoundLoader.load('assets/bg_music')
+
+    # Методи Реалізації хвиль гри
     def win(self):
         pass
     def start_next_wave(self,wave):
         self.wave += 1
 
-
+    # Метод оновленя гри
     def update(self,dt):
         if self.manager.current != 'game' or self.game_over == True or self.is_paused == True:
             return
@@ -207,6 +216,7 @@ class GameScreen(MDScreen):
         elif self.ids.dragon.right > Window.width:
             self.ids.dragon.right = Window.width
 
+    # Метод оновлення HP
     def update_health(self, damage):
         health_bar = self.ids.health_bar
         self.dragon_hp = max(0, self.dragon_hp - damage)
@@ -215,9 +225,10 @@ class GameScreen(MDScreen):
         anim.stop(health_bar)
         anim.start(health_bar)
         if self.dragon_hp == 0:
-            self.end_game()
-        
-    def end_game(self):
+            self.lose_game()
+
+    # Метод програшу в грі
+    def lose_game(self):
         if self.sound:
             self.sound.stop()
         self.game_over = True
@@ -236,7 +247,7 @@ class GameScreen(MDScreen):
         Clock.schedule_once(lambda dt: self.go_menu(), 3)
 
 
-    
+    # Метод паузи гри
     def pause(self):
         self.is_paused = True
         self.ids.pause_menu.opacity = 0.75
@@ -244,36 +255,37 @@ class GameScreen(MDScreen):
         if self.sound:
             self.sound.stop()
 
+    # Метод продовження до гри
     def resume(self):
         self.is_paused = False
         self.ids.pause_menu.opacity = 0
         self.ids.pause_menu.disabled = True
         if self.sound:
             self.sound.play()
+
+    # Метод руху дракона в ліво
     def moveLeft(self):
         self.ids.dragon.pos[0] -= DRAGON_SPEED
 
+    # Метод руху дракона в право
     def moveRight(self):
-        try:
-            self.ids.dragon.pos[0] += DRAGON_SPEED
-        except:
-            pass
+        self.ids.dragon.pos[0] += DRAGON_SPEED
 
+    # Метод атаки дракона
     def shot(self):
         self.fire_sound.play()
         shot = Shot(pos =(self.ids.dragon.center_x - 18, self.ids.dragon.center_y + 50))
         self.fireBalls.append(shot)
         self.ids.front.add_widget(shot)
 
+    # Методи кнопок
     def pressKey(self,key):
         self.eventKeys[key] = True
 
     def releaseKey(self,key):
         self.eventKeys[key] = False
 
-    def exit_to_menu(self):
-        self.manager.current = 'main'
-
+    # Вихід в меню
     def go_menu(self):
         self.manager.current = 'main'
         self.ids.pause_menu.opacity = 0
@@ -284,6 +296,7 @@ class GameScreen(MDScreen):
         if sound:
             sound.play()
 
+# Клас Ворогів
 class Enemy(Image):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -299,7 +312,7 @@ class Enemy(Image):
             spawn_x = randint(min_x, max_x)
 
         self.pos = (spawn_x, Window.height)
-
+#=== Клас Дракона ===
 class Dragon(Image):
     
     def __init__(self, **kwargs):
@@ -338,6 +351,8 @@ class Dragon(Image):
             Clock.schedule_interval(self.update_dragon, 1.0 / 12.0)
         else:
             self.source = 'assets/enemy.png'
+
+    # Оновлення фреймів анімації
     def update_dragon(self, dt):
         app = App.get_running_app()
         if app and hasattr(app.root, 'get_screen'):
@@ -350,14 +365,16 @@ class Dragon(Image):
         if self.frames:
             self.idx = (self.idx + 1) % len(self.frames)
             self.texture = self.frames[self.idx]
+# Класи Атак
 class Shot(Image):
     ...
 class EnemySpell(Image):
     ...
+# === Клас екрану паузи ===
 class Pause(MDScreen):
     def __init__(self,**kwargs):
             super().__init__(**kwargs)
-
+#=== Клас програми ===
 class GameApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
