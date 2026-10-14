@@ -189,6 +189,7 @@ class GameScreen(MDScreen):
 
             if enemy.y <= 0:
                 self.ids.back.remove_widget(enemy)
+                self.update_health(10)
                 if enemy in self.enemies:
                     self.enemies.remove(enemy)
                 continue
@@ -323,7 +324,7 @@ class Dragon(Image):
         self.fly_sound = SoundLoader.load('assets/sounds/fly.wav')
         
         try:
-            img_load = ImageLoader.load('assets/dragon_sheet.png')
+            img_load = ImageLoader.load('assets/images/dragon_sheet.png')
             
             if img_load:
                 tex = img_load.texture
@@ -332,7 +333,7 @@ class Dragon(Image):
             
             if not tex:
                 from kivy.core.image import Image as CoreImage
-                tex = CoreImage('assets/dragon_sheet.png').texture
+                tex = CoreImage('assets/images/dragon_sheet.png').texture
 
             if tex:
                 w, h = tex.width / 4, tex.height / 4
@@ -350,7 +351,7 @@ class Dragon(Image):
             self.texture = self.frames[0]
             Clock.schedule_interval(self.update_dragon, 1.0 / 12.0)
         else:
-            self.source = 'assets/enemy.png'
+            self.source = 'assets/images/enemy.png'
 
     # Оновлення фреймів анімації
     def update_dragon(self, dt):
@@ -382,7 +383,7 @@ class GameApp(MDApp):
         self.is_paused = False
         sm = MDScreenManager()
         sm.add_widget(MainScreen(name ="main"))
-        sm.add_widget(GameScreen(name = 'game'))
+        sm.add_widget(GameScreen(name ="game"))
 
         return sm
 

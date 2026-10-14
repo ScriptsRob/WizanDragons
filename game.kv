@@ -24,7 +24,7 @@
                 icon_color: utils.get_color_from_hex('#380e04')
         
         Image:
-            source: 'assets/dragon_title.jpg'
+            source: 'assets/images/dragon_title.jpg'
             size_hint_y: None
             height: '250dp'
             pos_hint: {"center_x": 0.5}
@@ -86,15 +86,15 @@
                 role: "small"
                 bold: True
 <EnemySpell@Image>:
-    source: 'assets/spell_lvl1.png'
+    source: 'assets/images/spell_lvl1.png'
     size_hint: None,None
     size:dp(20),dp(20)
 <Enemy@Image>:
-    source: 'assets/enemy.png'
+    source: 'assets/images/enemy_wave1.png'
     size_hint: None,None
     size:dp(150),dp(150)
 <Shot@Image>:
-    source: 'assets/fireball.png'
+    source: 'assets/images/fireball.png'
     size_hint: None,None
     size:dp(20),dp(20)
 
@@ -120,7 +120,7 @@
         # === Background animation
             FitImage:
                 id: bg1
-                source: "assets/bg.jpg"
+                source: "assets/images/bg.png"
                 size_hint: None,None
                 size: root.width, root.height
                 pos: 0, 0
@@ -129,7 +129,7 @@
 
             FitImage:
                 id: bg2
-                source: "assets/bg.jpg"
+                source: "assets/images/bg.png"
                 size_hint: None,None
                 size: root.width, root.height
                 pos: 0, self.parent.height
@@ -264,7 +264,8 @@
                 on_press: root.pressKey('left')
                 on_release: root.releaseKey('left')
                 MDButtonIcon:
-
+                    outline_width: 2
+                    outline_colour: (0, 0, 0, 1)
                     icon: 'arrow-left-bold'
                     theme_icon_color: 'Custom'
                     icon_color: utils.get_color_from_hex('#bf2f0b')
@@ -290,6 +291,8 @@
                 on_release: root.releaseKey('shot')
 
                 MDButtonIcon:
+                    outline_width: 2
+                    outline_colour: (0, 0, 0, 1)
                     icon: 'fire'
                     theme_icon_color: 'Custom'
                     icon_color: utils.get_color_from_hex('#bf2f0b')
@@ -316,6 +319,8 @@
                 on_release: root.releaseKey('right')
 
                 MDButtonIcon:
+                    outline_width: 2
+                    outline_colour: (0, 0, 0, 1)
                     icon: 'arrow-right-bold'
                     theme_icon_color: 'Custom'
                     icon_color: utils.get_color_from_hex('#bf2f0b')
