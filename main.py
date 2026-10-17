@@ -15,7 +15,7 @@ from kivy.core.audio import SoundLoader
 from kivy.graphics import Rectangle
 from kivy.core.image import ImageLoader
 from kivymd.app import MDApp as App
-
+from kivy.properties import NumericProperty 
 
 if platform != 'android':
     Window.size = (800,600)
@@ -23,13 +23,13 @@ if platform != 'android':
     Window.left=400
 
 #Змінні
+SPELLS_FREQUANCY = 0.0055
 SPELL_SPEED = dp(6)
 DRAGON_SPEED = dp(7)
 FIREBALL_SPEED = dp(10)
-ENEMY_SPEED = dp(1)
+ENEMY_SPEED = dp(1.5)
 FPS = 60
 BG_SPEED = dp(1)
-
 # === Клас Екрану Меню ===
 class MainScreen(MDScreen):
     def go_game(self):
@@ -37,7 +37,9 @@ class MainScreen(MDScreen):
 
 # === Клас Екрану Гри ===
 class GameScreen(MDScreen):
-
+    
+    wave = NumericProperty(1)
+    kills = NumericProperty(0)
     #Коннструктор класу
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
@@ -45,13 +47,14 @@ class GameScreen(MDScreen):
         self.fireBalls = []
         self.enemies_spells =[]
         self.enemies = []
-        self.kills = 0
+        self.heals = []
         self.dragon_hp = 100
+        self.chance = 40  
         self.game_over = False
         self.is_paused = False
-        self.wave = None
         Clock.schedule_interval(self.update,1/FPS)
         Clock.schedule_interval(self.spawn_enemy,2.5)
+        Clock.schedule_interval(self.start_next_wave,1/FPS)
 
         self.sound = None
 
@@ -68,6 +71,7 @@ class GameScreen(MDScreen):
             self.sound.loop = True
             self.sound.play()
         self.reset_game()
+        self.start_next_wave()
 
     #Метод ресету гри    
     def reset_game(self):
@@ -83,6 +87,20 @@ class GameScreen(MDScreen):
             self.score = 0
             self.game_over = False
             self.is_paused = False
+            self.wave = 1
+            self.kills = 0
+            for heal in self.heals[:]:
+                if heal.parent:
+                    heal.parent.remove_widget(heal)
+
+            self.heals.clear()            
+            lbl = self.ids.waves_label
+            lbl.pos_hint={"center_x": 0.1}
+            anim1 = Animation(opacity = 0.75,pos_hint={"center_x": 0.5},duration=0.8)
+            anim2 = Animation(pos_hint={"center_x": 0.99},opacity=0, duration=0.8)
+            anim = anim1+ anim2
+            anim.start(lbl)
+            
 
             if 'health_bar' in self.ids:
                 self.ids.health_bar.value = self.dragon_hp
@@ -93,6 +111,7 @@ class GameScreen(MDScreen):
             if 'pause_menu' in self.ids:
                 self.ids.pause_menu.opacity = 0
                 self.ids.pause_menu.disabled = True
+
     # Метод атаки ворогів
     def enemy_shot(self,enemy):
         enemy_spell = EnemySpell(pos= (enemy.center_x- 25,enemy.center_y + 10))
@@ -115,12 +134,59 @@ class GameScreen(MDScreen):
 
     sound = SoundLoader.load('assets/bg_music')
 
+    #Метод появи хілок
+    def spawn_heal(self):
+        print('HEAL!!!!!!!!!!!!!!!!!!!!!!')
+        if self.manager.current != 'game' or self.game_over == True or self.is_paused == True:
+            return
+        heal = Heal()
+        self.heals.append(heal)
+        self.ids.back.add_widget(heal)
+    #Метод руху хілок
+    def move_enemy(self):
+            heal = self.ids.heal
+            heal.x = (randint(0,int(Window.width- dp(50))))
+    
     # Методи Реалізації хвиль гри
-    def win(self):
-        pass
-    def start_next_wave(self,wave):
-        self.wave += 1
+    def start_next_wave(self, dt=0):
+        global SPELLS_FREQUANCY,SPELL_SPEED,FIREBALL_SPEED,ENEMY_SPEED,BG_SPEED
 
+        if self.kills == 10:
+            if self.wave == 3:
+                self.win_game()
+            self.wave += 1
+            self.kills = 0
+            self.ids.waves_label.text = f'Wave {self.wave}'
+
+            
+            lbl = self.ids.waves_label
+            lbl.pos_hint={"center_x": 0.1}
+
+            anim1 = Animation(opacity = 0.75,pos_hint={"center_x": 0.5},duration=0.5)
+            anim2 = Animation(pos_hint={"center_x": 0.99},opacity=0, duration=0.5)
+            anim = anim1+ anim2
+            anim.start(lbl)
+        
+        
+        
+        if self.wave == 1:
+            
+            SPELLS_FREQUANCY = 0.0055
+            ENEMY_SPEED = dp(1)
+            BG_SPEED = dp(1)
+        if self.wave == 2:
+            #make text anim
+            
+            SPELLS_FREQUANCY = 0.0075
+            ENEMY_SPEED = dp(2)
+            BG_SPEED = dp(2)
+        if self.wave == 3:
+            #make text anim
+            SPELLS_FREQUANCY = 0.01
+            ENEMY_SPEED = dp(2.5)
+            BG_SPEED = dp(2.5)
+   
+    
     # Метод оновленя гри
     def update(self,dt):
         if self.manager.current != 'game' or self.game_over == True or self.is_paused == True:
@@ -184,7 +250,7 @@ class GameScreen(MDScreen):
 
         for enemy in self.enemies[:]:
             enemy.y -= ENEMY_SPEED
-            if enemy.top > 0 and random() < 0.0035: 
+            if enemy.top > 0 and random() < SPELLS_FREQUANCY: 
                 self.enemy_shot(enemy)
 
             if enemy.y <= 0:
@@ -197,11 +263,12 @@ class GameScreen(MDScreen):
             for ball in self.fireBalls[:]:
                 x_hit = abs(enemy.center_x - ball.center_x - dp(15))
                 y_hit = abs(enemy.center_y - ball.center_y)
-                max_allowed_distance_x = dp(40) 
-                max_allowed_distance_y = dp(40)
+                max_allowed_distance_x = dp(65) 
+                max_allowed_distance_y = dp(60)
 
                 if x_hit <= max_allowed_distance_x and y_hit <= max_allowed_distance_y:
                     self.ids.back.remove_widget(enemy)
+                    self.kills += 1
 
                     if enemy in self.enemies:
                         self.enemies.remove(enemy)
@@ -209,13 +276,38 @@ class GameScreen(MDScreen):
                     self.ids.front.remove_widget(ball)
 
                     if ball in self.fireBalls:
-                        self.fireBalls.remove(ball)    
+                        self.fireBalls.remove(ball)
+                    if random() < (self.chance / 100):
+                        self.spawn_heal()    
                     break 
 
-        if self.ids.dragon.x < 0:
-            self.ids.dragon.x = 0
-        elif self.ids.dragon.right > Window.width:
-            self.ids.dragon.right = Window.width
+        for heal in self.heals[:]:
+            if heal.y <= 0:
+                self.heals.remove(heal)
+                heal.parent.remove_widget(heal)
+            heal.y -= dp(3)
+            dragon = self.ids.dragon
+            
+            dragon_top_y = dragon.y + dp(45)
+
+
+            x_hit = abs(self.ids.dragon.center_x - heal.center_x)
+            y_hit = abs(dragon_top_y - heal.center_y)
+
+            max_allowed_distance_x = dp(65) 
+            max_allowed_distance_y = dp(80)
+
+            if x_hit <= max_allowed_distance_x and y_hit <= max_allowed_distance_y:
+                self.heals.remove(heal)
+                heal.parent.remove_widget(heal)
+
+                self.heal_health()
+                
+
+            if self.ids.dragon.x < 0:
+                self.ids.dragon.x = 0
+            elif self.ids.dragon.right > Window.width:
+                self.ids.dragon.right = Window.width
 
     # Метод оновлення HP
     def update_health(self, damage):
@@ -225,10 +317,37 @@ class GameScreen(MDScreen):
         anim = Animation(value=self.dragon_hp, duration=0.1, transition="out_quad")
         anim.stop(health_bar)
         anim.start(health_bar)
+        
         if self.dragon_hp == 0:
             self.lose_game()
 
+    def heal_health(self,):
+        health_bar = self.ids.health_bar
+        self.dragon_hp = min(100, self.dragon_hp + 20)
+        self.ids.hp_label.text = str(self.dragon_hp)
+        anim = Animation(value=self.dragon_hp, duration=0.1, transition="out_quad")
+        anim.stop(health_bar)
+        anim.start(health_bar)
     # Метод програшу в грі
+    def win_game(self):
+    
+        if self.sound:
+            self.sound.stop()
+        self.game_over = True
+        for enemy in self.enemies[:]:
+            self.enemies.remove(enemy)
+            self.ids.back.remove_widget(enemy)
+        
+        for ball in self.fireBalls[:]:
+            self.ids.front.remove_widget(ball)
+            self.fireBalls.remove(ball) 
+        for spell in self.enemies_spells[:]:
+            self.enemies_spells.remove(spell)
+            self.ids.front.remove_widget(spell)
+
+        self.ids.win_label.opacity = 1
+        Clock.schedule_once(lambda dt: self.go_menu(), 3)
+
     def lose_game(self):
         if self.sound:
             self.sound.stop()
@@ -306,18 +425,64 @@ class Enemy(Image):
         space = dp(20)
         min_x = int(space)
         max_x = int(Window.width - self.size[0] - space)
-        
+        self.frames = []
+        self.idx = 0
         if max_x <= min_x:
             spawn_x = min_x
         else:
             spawn_x = randint(min_x, max_x)
 
         self.pos = (spawn_x, Window.height)
+        
+        try:
+            img_load = ImageLoader.load('assets/images/enemy_sheet.png')
+                
+            if img_load:
+                tex = img_load.texture
+            else:
+                tex = None
+                
+            if not tex:
+                from kivy.core.image import Image as CoreImage
+                tex = CoreImage('assets/images/enemy_sheet.png').texture
+    
+            if tex:
+                w, h = tex.width / 4, tex.height / 4
+                self.frames = []
+                for r in reversed(range(4)):
+                    for c in range(4):
+                        if not (r == 1 and c == 0):
+                            self.frames.append(tex.get_region(c * w, r * h, w, h))
+        except Exception:
+            pass
+    
+        self.idx = 0
+            
+        if self.frames:
+            self.texture = self.frames[0]
+            self.anim_event = Clock.schedule_interval(self.update_enemy, 1.0 / 12.0)
+        else:
+            self.source = 'assets/images/enemy_sheet.png'
+    
+        # Оновлення фреймів анімації
+    def update_enemy(self, dt):
+        app = App.get_running_app()
+        if app and hasattr(app.root, 'get_screen'):
+            try:
+                game_screen = app.root.get_screen('game')
+                if game_screen.is_paused or game_screen.game_over:
+                    return
+            except Exception:
+                pass    
+        if self.frames:
+            self.idx = (self.idx + 1) % len(self.frames)
+            self.texture = self.frames[self.idx]
 #=== Клас Дракона ===
 class Dragon(Image):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
         self.size_hint = (None, None)
         self.size = (dp(150), dp(150))
         self.frames = []
@@ -351,7 +516,7 @@ class Dragon(Image):
             self.texture = self.frames[0]
             Clock.schedule_interval(self.update_dragon, 1.0 / 12.0)
         else:
-            self.source = 'assets/images/enemy.png'
+            self.source = 'assets/images/enemy_sheet.png'
 
     # Оновлення фреймів анімації
     def update_dragon(self, dt):
@@ -366,6 +531,16 @@ class Dragon(Image):
         if self.frames:
             self.idx = (self.idx + 1) % len(self.frames)
             self.texture = self.frames[self.idx]
+
+class Heal(Image):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.size_hint = (None, None)
+        self.size = (dp(40), dp(40))
+        max_x = max(0, int(Window.width - self.width))
+        self.x = randint(0, max_x)
+        self.y = Window.height
 # Класи Атак
 class Shot(Image):
     ...

@@ -85,20 +85,21 @@
                 font_style: 'Headline'
                 role: "small"
                 bold: True
-<EnemySpell@Image>:
+<EnemySpell>:
     source: 'assets/images/spell_lvl1.png'
     size_hint: None,None
     size:dp(20),dp(20)
-<Enemy@Image>:
-    source: 'assets/images/enemy_wave1.png'
+<Enemy>:
+    id: enemy
     size_hint: None,None
     size:dp(150),dp(150)
-<Shot@Image>:
+    allow_stretch: True
+<Shot>:
     source: 'assets/images/fireball.png'
     size_hint: None,None
     size:dp(20),dp(20)
 
-<Dragon@Image>:
+<Dragon>:
     id: dragon
     size_hint: None,None
     size: dp(150) , dp(200)
@@ -112,6 +113,14 @@
     Rectangle:
         pos: self.pos
         size: self.size
+
+<Heal>:
+    id: heal
+    source: 'assets/images/heal.png'
+    size_hint: None,None
+    size:dp(40),dp(40)
+
+    
 <GameScreen>
     
     MDFloatLayout:
@@ -150,7 +159,7 @@
                 
                 font_name: 'assets/font.otf'
                 opacity: 0
-                outline_width: 10
+                outline_width: 8
                 outline_colour: (0, 0, 0, 1)
 
                 size_hint_x: 1
@@ -162,6 +171,59 @@
                 valign: "middle"
 
                 text_color: utils.get_color_from_hex('#bf2f0b')
+
+            MDLabel:
+                id: waves_label
+
+                theme_font_name: "Custom"
+                theme_font_size: "Custom"
+                theme_text_color: "Custom"
+
+                text: "Wave {}!".format(root.wave)
+                bold: True
+                font_size: "100sp"
+                
+                font_name: 'assets/font.otf'
+                opacity: 0
+                outline_width: 8
+                outline_colour: (0, 0, 0, 1)
+
+                size_hint_x: 1
+                size_hint_y: None
+                height: self.texture_size[1] 
+                
+                pos_hint: {"center_x": .1, "center_y": .5}
+                halign: "center"
+                valign: "middle"
+
+                text_color: utils.get_color_from_hex('#bf2f0b')
+
+            MDLabel:
+                id: win_label
+
+                theme_font_name: "Custom"
+                theme_font_size: "Custom"
+                theme_text_color: "Custom"
+
+                text: 'You Won!'
+                bold: True
+                font_size: "100sp"
+                
+                font_name: 'assets/font.otf'
+                opacity: 0
+                outline_width: 8
+                outline_colour: (0, 0, 0, 1)
+
+                size_hint_x: 1
+                size_hint_y: None
+                height: self.texture_size[1] 
+                
+                pos_hint: {"center_x": .5, "center_y": .5}
+                halign: "center"
+                valign: "middle"
+
+                text_color: utils.get_color_from_hex('#bf2f0b')
+
 
 
             MDFloatLayout:
